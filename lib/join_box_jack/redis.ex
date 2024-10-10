@@ -1,5 +1,4 @@
 defmodule JoinBoxJack.Redis do
-
   defp connect() do
     config = Application.get_env(:join_box_jack, JoinBoxJack.Redis)
     {:ok, conn} = Redix.start_link(host: config[:ip], port: config[:port])
