@@ -28,10 +28,7 @@ defmodule JoinBoxJack.Generator do
       else: code
   end
 
-  @doc """
-  Check if the room code is available to join
-  """
-  def is_code_reserved?(code) do
+  defp is_code_reserved?(code) do
     {:ok, r} = Redis.get(String.upcase(code))
     if r == nil, do: false, else: true
   end
