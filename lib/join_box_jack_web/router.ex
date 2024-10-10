@@ -17,8 +17,8 @@ defmodule JoinBoxJackWeb.Router do
   scope "/", JoinBoxJackWeb do
     pipe_through :browser
 
-    live "/", Index
-    live "/lobby/:room_code", JoinBoxJackWeb.View
+    live "/", Join.Index
+    live "/lobby/:room_code", Join.View
   end
 
   # Other scopes may use custom stacks.

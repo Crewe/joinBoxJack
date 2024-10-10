@@ -1,4 +1,4 @@
-defmodule JoinBoxJackWeb.Index do
+defmodule JoinBoxJackWeb.Join.Index do
   use JoinBoxJackWeb, :live_view
 
   alias JoinBoxJack.Generator
@@ -69,9 +69,13 @@ defmodule JoinBoxJackWeb.Index do
     {:noreply, socket}
   end
 
-  def handle_event("begin", %{"room_code" => room_code}, socket) do
-    if String.length(room_code) == 5 do
-      socket = push_navigate(socket, to: ~p"/lobby/#{room_code}")
+  def handle_event("begin", %{"room_code" => room_code, "player_name" => player_name}, socket) do
+    {valid?, _} = is_room_valid(room_code)
+    if String.length(room_code) == 5 && valid? do
+      socket =
+        socket
+        |> assign(:player_name, player_name)
+        |> push_navigate(to: ~p"/lobby/#{room_code}")
       {:noreply, socket}
     else
       socket = push_navigate(socket, to: ~p"/lobby/#{Generator.reserve_room_code()}")
@@ -87,7 +91,7 @@ defmodule JoinBoxJackWeb.Index do
     socket =
       socket
       |> assign(:remaining_chars, max_name_len - lens.(player_name))
-      |> assign(:room_code, room_code)
+      |> assign(:room_code, String.upcase(room_code))
       |> assign(:player_name, player_name)
       |> set_room_status(room_code)
       |> assign(:btn_text, get_btn_text(room_code))
