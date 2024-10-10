@@ -70,3 +70,7 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+config :join_box_jack, JoinBoxJack.Redis,
+  ip: "localhost",
+  port: 6379
