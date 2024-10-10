@@ -1,6 +1,8 @@
 defmodule JoinBoxJackWeb.Index do
   use JoinBoxJackWeb, :live_view
 
+  alias JoinBoxJack.Generator
+
   attr :room_status, :string, default: nil
   attr :max_room_code_len, :integer, default: 5
   attr :max_name_len, :integer, default: 12
@@ -13,7 +15,7 @@ defmodule JoinBoxJackWeb.Index do
         <p>Enter your name and a room code if you have one.</p>
       </div>
       <div class="row">
-        <.simple_form for={@form} phx-change="form_change" phx-submit="join" autocomplete="off">
+        <.simple_form for={@form} phx-change="form_change" phx-submit="begin" autocomplete="off">
           <.label for="room_code">
             Room Code
             <span class="status" style="float:right; font-style:italic;color:firebrick;">
@@ -24,7 +26,6 @@ defmodule JoinBoxJackWeb.Index do
               name="room_code"
               field={@form[:room_code]}
               maxlength={@max_room_code_len}
-              autocorrect="off"
               pattern="[a-zA-Z]+"
               value={@form[:room_code]}
               style="text-transform:uppercase;"
@@ -41,10 +42,9 @@ defmodule JoinBoxJackWeb.Index do
               name="player_name"
               field={@form[:player_name]}
               maxlength={@max_name_len}
-              autocorrect="off"
               pattern="[a-zA-Z]+"
               min={2}
-              value=""
+              value={@form[:player_name]}
               placeholder="Player Name"
               required
             />
@@ -68,7 +68,13 @@ defmodule JoinBoxJackWeb.Index do
     {:noreply, socket}
   end
 
-  def handle_event(_event, _unsigned_params, socket) do
-    {:noreply, socket}
+  def handle_event("begin", %{"room_code" => room_code}, socket) do
+    if String.length(room_code) == 5 do
+      socket = push_navigate(socket, to: ~p"/lobby/#{room_code}")
+      {:noreply, socket}
+    else
+      socket = push_navigate(socket, to: ~p"/lobby/#{Generator.reserve_room_code()}")
+      {:noreply, socket}
+    end
   end
 end
