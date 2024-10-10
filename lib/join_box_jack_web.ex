@@ -41,9 +41,8 @@ defmodule JoinBoxJackWeb do
       use Phoenix.Controller,
         formats: [:html, :json],
         layouts: [html: JoinBoxJackWeb.Layouts]
-
+      use Gettext, backend: JoinBoxJackWeb
       import Plug.Conn
-      import JoinBoxJackWeb.Gettext
 
       unquote(verified_routes())
     end
