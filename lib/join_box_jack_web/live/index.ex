@@ -80,12 +80,16 @@ defmodule JoinBoxJackWeb.Index do
   end
 
   def handle_event("form_change", %{"room_code" => room_code, "player_name" => player_name}, socket) do
+    max_name_len = 12
+    lens = &String.length(&1)
     room_code = String.upcase(room_code)
 
     socket =
       socket
+      |> assign(:remaining_chars, max_name_len - lens.(player_name))
       |> assign(:room_code, room_code)
       |> assign(:player_name, player_name)
+      |> set_room_status(room_code)
       |> assign(:btn_text, get_btn_text(room_code))
 
     {:noreply, push_patch(socket, to: ~p"/")}
@@ -94,6 +98,11 @@ defmodule JoinBoxJackWeb.Index do
 
   defp get_btn_text(rc) do
     if String.length(rc) == 5 && is_room_valid(rc) == {true, ""}, do: "Join a Round", else: "Start a Round"
+  end
+
+  defp set_room_status(socket, rc) do
+    {_, msg} = is_room_valid(rc)
+    assign(socket, :room_status, msg)
   end
 
   defp is_room_valid(rc) do
