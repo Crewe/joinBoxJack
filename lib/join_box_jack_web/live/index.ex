@@ -2,6 +2,7 @@ defmodule JoinBoxJackWeb.Index do
   use JoinBoxJackWeb, :live_view
 
   alias JoinBoxJack.Generator
+  alias JoinBoxJack.Redis
 
   attr :room_status, :string, default: nil
   attr :max_room_code_len, :integer, default: 5
@@ -75,6 +76,36 @@ defmodule JoinBoxJackWeb.Index do
     else
       socket = push_navigate(socket, to: ~p"/lobby/#{Generator.reserve_room_code()}")
       {:noreply, socket}
+    end
+  end
+
+  def handle_event("form_change", %{"room_code" => room_code, "player_name" => player_name}, socket) do
+    room_code = String.upcase(room_code)
+
+    socket =
+      socket
+      |> assign(:room_code, room_code)
+      |> assign(:player_name, player_name)
+      |> assign(:btn_text, get_btn_text(room_code))
+
+    {:noreply, push_patch(socket, to: ~p"/")}
+    {:noreply, socket}
+  end
+
+  defp get_btn_text(rc) do
+    if String.length(rc) == 5 && is_room_valid(rc) == {true, ""}, do: "Join a Round", else: "Start a Round"
+  end
+
+  defp is_room_valid(rc) do
+    max_room_len = 5
+    if String.length(rc) == max_room_len do
+      case Redis.get(rc) do
+        {:ok, nil} -> {false, "Room not found..."}
+        {:ok, _} -> {true, ""}
+        _ -> ""
+      end
+    else
+      {false, ""}
     end
   end
 end
