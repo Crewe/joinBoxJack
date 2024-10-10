@@ -9,6 +9,7 @@ defmodule JoinBoxJack.GeneratorTest do
   end
 
   test "codes don't contain vowels" do
-    for _ <- 1..5, do: assert !String.contains?(Generator.gen_room_code(20), ["A","E","I","O","U"])
+    for _ <- 1..5,
+        do: assert(!String.contains?(Generator.gen_room_code(20), ["A", "E", "I", "O", "U"]))
   end
 end

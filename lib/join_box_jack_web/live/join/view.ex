@@ -13,6 +13,7 @@ defmodule JoinBoxJackWeb.Join.View do
       socket
       |> assign(:room_code, params["room_code"])
       |> assign(:player_name, params["player_name"])
+
     {:ok, socket}
   end
 
@@ -23,5 +24,4 @@ defmodule JoinBoxJackWeb.Join.View do
   def handle_event(_event, _unsigned_params, socket) do
     {:noreply, socket}
   end
-
 end

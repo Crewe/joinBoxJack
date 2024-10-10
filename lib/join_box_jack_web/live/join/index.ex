@@ -8,6 +8,7 @@ defmodule JoinBoxJackWeb.Join.Index do
   attr :max_room_code_len, :integer, default: 5
   attr :max_name_len, :integer, default: 12
   attr :remaining_chars, :integer, default: 12
+
   def render(assigns) do
     ~H"""
     <div class="w6">
@@ -62,6 +63,7 @@ defmodule JoinBoxJackWeb.Join.Index do
       socket
       |> assign(:form, %{})
       |> assign(:btn_text, "Start a Game")
+
     {:ok, socket}
   end
 
@@ -71,11 +73,13 @@ defmodule JoinBoxJackWeb.Join.Index do
 
   def handle_event("begin", %{"room_code" => room_code, "player_name" => player_name}, socket) do
     {valid?, _} = is_room_valid(room_code)
+
     if String.length(room_code) == 5 && valid? do
       socket =
         socket
         |> assign(:player_name, player_name)
         |> push_navigate(to: ~p"/lobby/#{room_code}")
+
       {:noreply, socket}
     else
       socket = push_navigate(socket, to: ~p"/lobby/#{Generator.reserve_room_code()}")
@@ -83,7 +87,11 @@ defmodule JoinBoxJackWeb.Join.Index do
     end
   end
 
-  def handle_event("form_change", %{"room_code" => room_code, "player_name" => player_name}, socket) do
+  def handle_event(
+        "form_change",
+        %{"room_code" => room_code, "player_name" => player_name},
+        socket
+      ) do
     max_name_len = 12
     lens = &String.length(&1)
     room_code = String.upcase(room_code)
@@ -101,7 +109,9 @@ defmodule JoinBoxJackWeb.Join.Index do
   end
 
   defp get_btn_text(rc) do
-    if String.length(rc) == 5 && is_room_valid(rc) == {true, ""}, do: "Join a Round", else: "Start a Round"
+    if String.length(rc) == 5 && is_room_valid(rc) == {true, ""},
+      do: "Join a Round",
+      else: "Start a Round"
   end
 
   defp set_room_status(socket, rc) do
@@ -111,6 +121,7 @@ defmodule JoinBoxJackWeb.Join.Index do
 
   defp is_room_valid(rc) do
     max_room_len = 5
+
     if String.length(rc) == max_room_len do
       case Redis.get(rc) do
         {:ok, nil} -> {false, "Room not found..."}
