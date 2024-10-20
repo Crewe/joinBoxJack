@@ -22,6 +22,10 @@ defmodule JoinBoxJack.Generator do
     code
   end
 
+  def gen_user_id(player_name) do
+    %{:name => player_name, :id => UUID.uuid1(:hex)}
+  end
+
   defp check_code(code, len) do
     if String.contains?(code, ["A", "E", "I", "O", "U"]),
       do: gen_room_code(len) |> check_code(len),
