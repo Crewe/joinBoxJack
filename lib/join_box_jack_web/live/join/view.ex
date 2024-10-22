@@ -2,12 +2,11 @@ defmodule JoinBoxJackWeb.Join.View do
   use JoinBoxJackWeb, :live_view
 
   alias JoinBoxJack.Players.PlayerStore
-  alias JoinBoxJack.Rooms.RoomStore
 
   def render(assigns) do
     ~H"""
     <p>Hello <%= @player_name %>!
-    Your room code is: <em><%= @room_code %></em></p>
+      Your room code is: <em><%= @room_code %></em></p>
     <hr />
     <table id="player-lobby" class="table-fixed boder-separate border-spacing-2">
       <thead>

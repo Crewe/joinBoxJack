@@ -90,7 +90,8 @@ defmodule JoinBoxJackWeb.Join.Index do
         socket
         |> register_player(%{id: socket.assigns[:player_id], name: player_name})
         # TODO: Refactor into RoomStore
-        |> push_navigate( to: ~p"/lobby/#{Generator.reserve_room_code()}")
+        |> push_navigate(to: ~p"/lobby/#{Generator.reserve_room_code()}")
+
       {:noreply, socket}
     end
   end
