@@ -5,9 +5,9 @@ defmodule JoinBoxJack.Players.PlayerStore do
   @doc """
   Generate an ID for a player. (With collision check)
   """
-  def gen_user_id() do
+  def gen_player_id() do
     new_id = UUID.uuid1(:hex)
-    if exists?(new_id), do: gen_user_id(), else: new_id
+    if exists?(new_id), do: gen_player_id(), else: new_id
   end
 
   @doc """
@@ -59,5 +59,4 @@ defmodule JoinBoxJack.Players.PlayerStore do
   end
 
   defp map_to_player(player_map), do: struct(Player, player_map)
-
 end

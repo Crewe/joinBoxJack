@@ -13,7 +13,7 @@ defmodule JoinBoxJackWeb.Plugs.PlayerSession do
     # conn = configure_session(conn, drop: true)
     case get_session(conn, :player_id) do
       nil ->
-        put_session(conn, :player_id, PlayerStore.gen_user_id())
+        put_session(conn, :player_id, PlayerStore.gen_player_id())
 
       _ ->
         conn
