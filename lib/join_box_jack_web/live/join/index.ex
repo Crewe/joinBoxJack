@@ -1,7 +1,6 @@
 defmodule JoinBoxJackWeb.Join.Index do
   use JoinBoxJackWeb, :live_view
 
-  alias JoinBoxJack.Generator
   alias JoinBoxJack.Players.PlayerStore
   alias JoinBoxJack.Players.Player
   alias JoinBoxJack.Rooms.RoomStore
@@ -90,7 +89,7 @@ defmodule JoinBoxJackWeb.Join.Index do
         socket
         |> register_player(%{id: socket.assigns[:player_id], name: player_name})
         # TODO: Refactor into RoomStore
-        |> push_navigate(to: ~p"/lobby/#{Generator.reserve_room_code()}")
+        |> push_navigate(to: ~p"/lobby/#{RoomStore.reserve_room_code()}")
 
       {:noreply, socket}
     end

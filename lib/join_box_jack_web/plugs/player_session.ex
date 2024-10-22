@@ -1,7 +1,7 @@
 defmodule JoinBoxJackWeb.Plugs.PlayerSession do
   import Plug.Conn
 
-  alias JoinBoxJack.Generator
+  alias JoinBoxJack.Players.PlayerStore
 
   def init(default), do: default
 
@@ -13,8 +13,7 @@ defmodule JoinBoxJackWeb.Plugs.PlayerSession do
     # conn = configure_session(conn, drop: true)
     case get_session(conn, :player_id) do
       nil ->
-        %{id: id} = Generator.gen_user_id()
-        put_session(conn, :player_id, id)
+        put_session(conn, :player_id, PlayerStore.gen_user_id())
 
       _ ->
         conn

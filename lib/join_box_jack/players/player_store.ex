@@ -2,6 +2,19 @@ defmodule JoinBoxJack.Players.PlayerStore do
   alias JoinBoxJack.Redis
   alias JoinBoxJack.Players.Player
 
+  @doc """
+  Generate an ID for a player. (With collision check)
+  """
+  def gen_user_id() do
+    new_id = UUID.uuid1(:hex)
+    if exists?(new_id), do: gen_user_id(), else: new_id
+  end
+
+  @doc """
+  Check if the player exists.
+
+  _faster than getting the player_
+  """
   def exists?(player_id) do
     case Redis.exists("player:#{player_id}") do
       {:ok, 0} -> false
@@ -10,6 +23,9 @@ defmodule JoinBoxJack.Players.PlayerStore do
     end
   end
 
+  @doc """
+  Retrieve a player from the DB
+  """
   def get_player(player_id) do
     case Redis.hgetall("player:#{player_id}") do
       {:ok, []} ->
@@ -20,6 +36,9 @@ defmodule JoinBoxJack.Players.PlayerStore do
     end
   end
 
+  @doc """
+  Add or update a ployer in the DB
+  """
   def put_player(%Player{} = player) do
     lst = ["name", player.name]
     lst = ["id", player.id | lst]
@@ -41,14 +60,4 @@ defmodule JoinBoxJack.Players.PlayerStore do
 
   defp map_to_player(player_map), do: struct(Player, player_map)
 
-  @doc ~S"""
-  Takes the data list from Redis and converts it to a Player struct
-  ```
-  iex(1)> string_key_map = %{"foo" => "bar", "hello" => "world"}
-  %{"foo" => "bar", "hello" => "world"}
-
-  iex(2)> for {key, val} <- string_key_map, into: %{}, do: {String.to_atom(key), val}
-  %{foo: "bar", hello: "world"}
-  ```
-  """
 end

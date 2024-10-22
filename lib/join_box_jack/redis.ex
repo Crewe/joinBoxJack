@@ -7,6 +7,9 @@ defmodule JoinBoxJack.Redis do
 
   @doc """
   Check to see if a key exists
+
+  Returns `{:ok, :integer}` where the integer represents the number of
+  found records.
   """
   def exists(key) do
     Redix.command(connect(), ["EXISTS", key])
