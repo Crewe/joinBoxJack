@@ -22,7 +22,7 @@ defmodule JoinBoxJack.Generator do
     code
   end
 
-  def gen_user_id(player_name) do
+  def gen_user_id(player_name \\ nil) do
     %{:name => player_name, :id => UUID.uuid1(:hex)}
   end
 

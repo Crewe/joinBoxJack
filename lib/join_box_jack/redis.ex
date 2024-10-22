@@ -6,6 +6,27 @@ defmodule JoinBoxJack.Redis do
   end
 
   @doc """
+  Check to see if a key exists
+  """
+  def exists(key) do
+    Redix.command(connect(), ["EXISTS", key])
+  end
+
+  @doc """
+  Create a hast set
+  """
+  def hset(list) do
+    Redix.command(connect(), ["HSET" | list])
+  end
+
+  @doc """
+  Get all values in a hash set
+  """
+  def hgetall(hset_id) do
+    Redix.command(connect(), ["HGETALL", "#{hset_id}"])
+  end
+
+  @doc """
   Simple set
   """
   def set(key, val) do

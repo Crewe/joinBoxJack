@@ -2,7 +2,9 @@ defmodule JoinBoxJackWeb.Join.Index do
   use JoinBoxJackWeb, :live_view
 
   alias JoinBoxJack.Generator
-  alias JoinBoxJack.Redis
+  alias JoinBoxJack.Players.PlayerStore
+  alias JoinBoxJack.Players.Player
+  alias JoinBoxJack.Rooms.RoomStore
 
   attr :room_status, :string, default: nil
   attr :max_room_code_len, :integer, default: 5
@@ -58,9 +60,10 @@ defmodule JoinBoxJackWeb.Join.Index do
     """
   end
 
-  def mount(_params, _session, socket) do
+  def mount(_params, %{"player_id" => player_id} = _session, socket) do
     socket =
       socket
+      |> assign(:player_id, player_id)
       |> assign(:form, %{})
       |> assign(:btn_text, "Start a Game")
 
@@ -78,11 +81,16 @@ defmodule JoinBoxJackWeb.Join.Index do
       socket =
         socket
         |> assign(:player_name, player_name)
+        |> register_player(%{id: socket.assigns[:player_id], name: player_name})
         |> push_navigate(to: ~p"/lobby/#{room_code}")
 
       {:noreply, socket}
     else
-      socket = push_navigate(socket, to: ~p"/lobby/#{Generator.reserve_room_code()}")
+      socket =
+        socket
+        |> register_player(%{id: socket.assigns[:player_id], name: player_name})
+        # TODO: Refactor into RoomStore
+        |> push_navigate( to: ~p"/lobby/#{Generator.reserve_room_code()}")
       {:noreply, socket}
     end
   end
@@ -108,10 +116,15 @@ defmodule JoinBoxJackWeb.Join.Index do
     {:noreply, socket}
   end
 
+  defp register_player(socket, %{id: p_id, name: p_name}) do
+    PlayerStore.put_player(%Player{id: p_id, name: p_name})
+    socket
+  end
+
   defp get_btn_text(rc) do
     if String.length(rc) == 5 && is_room_valid(rc) == {true, ""},
-      do: "Join a Round",
-      else: "Start a Round"
+      do: "Join a Game",
+      else: "Start a Game"
   end
 
   defp set_room_status(socket, rc) do
@@ -123,10 +136,12 @@ defmodule JoinBoxJackWeb.Join.Index do
     max_room_len = 5
 
     if String.length(rc) == max_room_len do
-      case Redis.get(rc) do
-        {:ok, nil} -> {false, "Room not found..."}
-        {:ok, _} -> {true, ""}
-        _ -> ""
+      case RoomStore.exists?(rc) do
+        true ->
+          {true, ""}
+
+        false ->
+          {false, "Room not found..."}
       end
     else
       {false, ""}

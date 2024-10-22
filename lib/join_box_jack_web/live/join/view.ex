@@ -1,12 +1,13 @@
 defmodule JoinBoxJackWeb.Join.View do
   use JoinBoxJackWeb, :live_view
 
-  alias JoinBoxJack.Generator
+  alias JoinBoxJack.Players.PlayerStore
+  alias JoinBoxJack.Rooms.RoomStore
 
   def render(assigns) do
     ~H"""
-    <h1>Hello @player.name !</h1>
-    <p><em>Welcome to room <%= @room_code %></em></p>
+    <p>Hello <%= @player_name %>!
+    Your room code is: <em><%= @room_code %></em></p>
     <hr />
     <table id="player-lobby" class="table-fixed boder-separate border-spacing-2">
       <thead>
@@ -50,13 +51,25 @@ defmodule JoinBoxJackWeb.Join.View do
     """
   end
 
-  def mount(%{"room_code" => room_code}, _session, socket) do
-    socket =
-      socket
-      |> assign(:room_code, room_code)
-      |> assign(:player_name, "[Get Sesh Name]")
+  def mount(%{"room_code" => room_code}, %{"player_id" => player_id} = _session, socket) do
+    case PlayerStore.get_player(player_id) do
+      {:ok, player} ->
+        socket =
+          socket
+          |> assign(:room_code, room_code)
+          |> assign(:player_id, player.id)
+          |> assign(:player_name, player.name)
 
-    {:ok, socket}
+        {:ok, socket}
+
+      {:miss, _} ->
+        socket =
+          socket
+          |> put_flash(:error, "Player data not found")
+          |> redirect(to: ~p"/")
+
+        {:ok, socket}
+    end
   end
 
   def handle_params(_unsigned_params, _uri, socket) do
@@ -78,9 +91,5 @@ defmodule JoinBoxJackWeb.Join.View do
     else
       {:error, "Room is full"}
     end
-  end
-
-  defp get_player_id(session, name) do
-    player = Generator.gen_user_id(name)
   end
 end
